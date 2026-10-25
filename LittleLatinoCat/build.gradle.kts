@@ -1,6 +1,6 @@
-version = 3
+version = 4
 cloudstream {
-    description = "Little latino cat: catálogo principal y búsqueda con verificación de títulos."
+    description = "Little latino cat: lector de búsqueda separado del catálogo, pendiente de validación Android."
     authors = listOf("raiderking2022-wq")
     language = "es"
     status = 3
