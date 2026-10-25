@@ -1,0 +1,72 @@
+name: Diagnose catalog and search
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/diagnose-catalog.yml']
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare public listing structures
+        shell: bash
+        run: |
+          mkdir -p catalog-report
+          python3 - <<'PY'
+          import json, urllib.request, urllib.parse, pathlib, re
+          from html.parser import HTMLParser
+          base = 'https://www.peelink2.com'
+          cases = {'home':'/inicio', 'page2':'/inicio/page/2', 'mufasa':'/?s=mufasa', 'absent':'/?s=zzzxqvnonexistent987654'}
+          class Parser(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.stack=[]; self.anchor=None; self.cards=[]; self.pages=[]; self.headings=[]; self.heading=None
+              def handle_starttag(self,tag,items):
+                  a=dict(items)
+                  if tag=='a':
+                      href=urllib.parse.urljoin(base,a.get('href',''))
+                      self.anchor={'href':href,'text':'','images':[], 'parents':self.stack[-6:]}
+                      if '/page/' in href or 'paged=' in href: self.pages.append({'href':href,'class':a.get('class',''),'rel':a.get('rel','')})
+                  if tag=='img' and self.anchor is not None:
+                      self.anchor['images'].append({k:a.get(k,'')[:180] for k in ['alt','title','src','data-src']})
+                  if tag in ['h1','h2','h3']: self.heading={'tag':tag,'class':a.get('class',''),'text':''}
+                  if tag not in ['img','br','hr','meta','link','input','source','area','base','embed','param','track','wbr']:
+                      self.stack.append({'tag':tag,'class':a.get('class','')[:120],'id':a.get('id','')[:80]})
+              def handle_data(self,text):
+                  if self.anchor is not None: self.anchor['text']+=text[:300]
+                  if self.heading is not None: self.heading['text']+=text[:300]
+              def handle_endtag(self,tag):
+                  if tag=='a' and self.anchor is not None:
+                      if self.anchor['images'] and re.search(r'/[0-9]{4}/[0-9]{2}/',self.anchor['href']):
+                          self.anchor['text']=' '.join(self.anchor['text'].split())[:200]
+                          self.cards.append(self.anchor)
+                      self.anchor=None
+                  if tag in ['h1','h2','h3'] and self.heading is not None:
+                      self.heading['text']=' '.join(self.heading['text'].split())[:200]
+                      self.headings.append(self.heading); self.heading=None
+                  for i in range(len(self.stack)-1,-1,-1):
+                      if self.stack[i]['tag']==tag:
+                          self.stack=self.stack[:i]; break
+          reports={}
+          for name,path in cases.items():
+              requested=base+path
+              try:
+                  req=urllib.request.Request(requested,headers={'User-Agent':'Mozilla/5.0'})
+                  with urllib.request.urlopen(req,timeout=25) as response:
+                      final=response.url; status=response.status; raw=response.read(2500000).decode('utf-8','replace')
+                  parser=Parser(); parser.feed(raw)
+                  reports[name]={'requested':requested,'final':final,'status':status,'headings':parser.headings[:35],'cards':parser.cards[:50],'card_count':len(parser.cards),'pagination':parser.pages[:20]}
+              except Exception as error:
+                  reports[name]={'requested':requested,'error':str(error)[:300]}
+          pathlib.Path('catalog-report/catalog.json').write_text(json.dumps(reports,ensure_ascii=False,indent=2))
+          PY
+      - name: Publish report only in this repository
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: catalog-diagnostics
+          publish_dir: ./catalog-report
+          enable_jekyll: true
