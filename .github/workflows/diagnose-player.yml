@@ -1,0 +1,65 @@
+name: Diagnose player structure
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/diagnose-player.yml']
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect public HTML without video requests
+        shell: bash
+        run: |
+          mkdir -p player-report
+          python3 - <<'PY'
+          import json, re, urllib.request, urllib.parse, pathlib
+          from html.parser import HTMLParser
+          url = 'https://www.peelink2.com/2026/07/ver-spider-man-un-nuevo-dia-2026-online.html'
+          req = urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0'})
+          with urllib.request.urlopen(req, timeout=30) as response:
+              raw = response.read(3000000).decode('utf-8', 'replace')
+              status = response.status
+          def safe_url(value):
+              parsed = urllib.parse.urlsplit(urllib.parse.urljoin(url, value))
+              return urllib.parse.urlunsplit((parsed.scheme, parsed.hostname or '', parsed.path, '', ''))
+          class Inspector(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.nodes = []; self.scripts = []; self.active = False
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  if tag == 'script':
+                      self.active = True
+                      if attrs.get('src'): self.scripts.append(safe_url(attrs['src']))
+                  if tag in ('iframe', 'video', 'source') or any(k.startswith('data-') and any(w in k for w in ('video', 'embed', 'player', 'src', 'url', 'id')) for k in attrs):
+                      record = {'tag':tag, 'attributes':list(attrs)}
+                      for k,v in attrs.items():
+                          if not v: continue
+                          if k in ('src','data-src','data-lazy-src','href','data-url','data-embed','data-video'):
+                              if v.startswith(('https://','http://','//','/')): record[k] = safe_url(v)
+                              else: record[k + '_shape'] = {'length':len(v), 'prefix':v[:16] if re.fullmatch(r'[A-Za-z0-9+/=]+',v) else '[non-url]'}
+                          elif k in ('class','id','type','name'): record[k] = v[:120]
+                          elif k.startswith('data-'): record[k + '_length'] = len(v)
+                      self.nodes.append(record)
+              def handle_endtag(self, tag):
+                  if tag == 'script': self.active = False
+              def handle_data(self, text):
+                  if self.active:
+                      for match in re.findall(r'https?://[^\s\"<>]+',text):
+                          try: self.scripts.append(safe_url(match))
+                          except ValueError: pass
+          parser = Inspector(); parser.feed(raw)
+          report = {'page':url,'http_status':status,'bytes_read':len(raw),'player_nodes':parser.nodes[:120], 'script_urls':list(dict.fromkeys(parser.scripts))[:100], 'signals': {word:len(re.findall(re.escape(word),raw,re.I)) for word in ['iframe','data-src','atob','base64','ajax','player','embed','m3u8','mp4']}}
+          pathlib.Path('player-report/structure.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          PY
+      - name: Publish diagnostic only in this repository
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: diagnostics
+          publish_dir: ./player-report
+          enable_jekyll: true
