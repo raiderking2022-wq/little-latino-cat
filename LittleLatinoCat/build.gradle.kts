@@ -7,5 +7,5 @@ cloudstream {
     tvTypes = listOf("Movie")
 }
 dependencies {
-    add("compileOnly", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    add("compileOnly", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
 }
