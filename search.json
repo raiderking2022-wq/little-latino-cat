@@ -1,0 +1,43 @@
+{
+  "home_forms": [
+    {
+      "action": "https://www.peelink2.com/",
+      "method": "get",
+      "inputs": [
+        {
+          "type": "text",
+          "value": "",
+          "name": "s",
+          "id": "s"
+        },
+        {
+          "type": "submit",
+          "id": "searchsubmit",
+          "value": "BUSCA TU PELICULA"
+        }
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "url": "https://www.peelink2.com/?s=mufasa",
+      "status": 406,
+      "type": "text/html",
+      "title": " 406 Not Acceptable\r\n",
+      "forms": [],
+      "image_titles": [],
+      "body_excerpt": " \n \n \n \n  406 Not Acceptable\r\n  @media (prefers-color-scheme:dark){body{background-color:#000!important}}  \n \n       \n         406 \n Not Acceptable\r\n \n This request is not acceptable \n   window.__CF$cv$params={r:'a501797acd193914',t:'MTc5MjkzMzk2Mw==',u:'01a173312903765784a1740693bc4f70',ut:'onlKd4PA0W.b30uwQX4vmYuBh9U6qKzSRygakarhRcg-1792933964-1.2.1.1-QT2S5cSCXKracJSoVSMvhkIERNPvF6gt0RMS8WN7xcgVcIEJkQkgXWMbgwuZlJWrsVutCJO7e2Px7sf5eohwGXvyndP81wEQd41dRIm4vE8',i:60};(function(){if(!document.body",
+      "browser_headers": false
+    },
+    {
+      "url": "https://www.peelink2.com/?s=mufasa",
+      "status": 406,
+      "type": "text/html",
+      "title": " 406 Not Acceptable\r\n",
+      "forms": [],
+      "image_titles": [],
+      "body_excerpt": " \n \n \n \n  406 Not Acceptable\r\n  @media (prefers-color-scheme:dark){body{background-color:#000!important}}  \n \n       \n         406 \n Not Acceptable\r\n \n This request is not acceptable \n    \n window.__CF$cv$params={r:'a501797b4f755668',t:'MTc5MjkzMzk2NA==',u:'01a173312958700ba31eebf19afa13f2',ut:'6Wc8PNQ66uTQ9MtGURCqsbAeV1pXEN_JTD32UG6YkDU-1792933964-1.2.1.1-y4HR9g82SDdVLTXMt5mOKclGuCTGo_WyLxmeoc2ae_wgzkG98FNISm_7_8rYw3Ox9stZvP48kwxFapVvok9P3F3BkqdwdPtbxvg8gnUK2mM',i:60};(function(){if(!document.b",
+      "browser_headers": true
+    }
+  ]
+}
