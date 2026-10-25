@@ -1,0 +1,286 @@
+{
+  "home": {
+    "requested": "https://www.peelink2.com/inicio",
+    "final": "https://www.peelink2.com/inicio",
+    "status": 200,
+    "error": null,
+    "card_count": 75,
+    "headings": [
+      {
+        "tag": "h1",
+        "class": "home-title",
+        "text": "Peliculas Estrenos Online"
+      },
+      {
+        "tag": "h2",
+        "class": "",
+        "text": "Opciones rápidas"
+      },
+      {
+        "tag": "h2",
+        "class": "title",
+        "text": "BUSCAR PELIS EN PEELINK"
+      },
+      {
+        "tag": "h3",
+        "class": "",
+        "text": "Pelis Recomendadas"
+      },
+      {
+        "tag": "h2",
+        "class": "title",
+        "text": "TEMATICAS (TODO ESTRENOS)"
+      },
+      {
+        "tag": "h2",
+        "class": "title",
+        "text": "ULTIMAS PELICULAS"
+      }
+    ],
+    "pagination": [
+      {
+        "href": "https://www.peelink2.com/inicio/page/2",
+        "class": "page-numbers",
+        "rel": ""
+      },
+      {
+        "href": "https://www.peelink2.com/inicio/page/3",
+        "class": "page-numbers",
+        "rel": ""
+      },
+      {
+        "href": "https://www.peelink2.com/inicio/page/4",
+        "class": "page-numbers",
+        "rel": ""
+      },
+      {
+        "href": "https://www.peelink2.com/inicio/page/5",
+        "class": "page-numbers",
+        "rel": ""
+      },
+      {
+        "href": "https://www.peelink2.com/inicio/page/6",
+        "class": "page-numbers",
+        "rel": ""
+      },
+      {
+        "href": "https://www.peelink2.com/inicio/page/7",
+        "class": "page-numbers",
+        "rel": ""
+      },
+      {
+        "href": "https://www.peelink2.com/inicio/page/286",
+        "class": "page-numbers",
+        "rel": ""
+      },
+      {
+        "href": "https://www.peelink2.com/inicio/page/2",
+        "class": "",
+        "rel": ""
+      }
+    ],
+    "groups": [
+      {
+        "container": "div.widget-content# > div.slider#",
+        "sample_count": 8,
+        "examples": [
+          {
+            "url": "https://www.peelink2.com/2026/10/todo-dragon-ball-super-beerus.html",
+            "title": ""
+          },
+          {
+            "url": "https://www.peelink2.com/2026/05/ver-el-diablo-viste-a-la-moda-2-2026-online.html",
+            "title": ""
+          },
+          {
+            "url": "https://www.peelink2.com/2026/07/ver-spider-man-un-nuevo-dia-2026-online.html",
+            "title": ""
+          }
+        ]
+      },
+      {
+        "container": "div.contenedorh destacadas# > div.bloque#",
+        "sample_count": 42,
+        "examples": [
+          {
+            "url": "https://www.peelink2.com/2026/10/ver-resident-evil-noche-cero-2026-100-online.html",
+            "title": "Ver Resident Evil Noche cero (2026) 100% Online"
+          },
+          {
+            "url": "https://www.peelink2.com/2026/09/ver-zona-cero-2026-online.html",
+            "title": "Ver Zona cero (2026) Online"
+          },
+          {
+            "url": "https://www.peelink2.com/2026/08/ver-coyote-vs-acme-2026-online.html",
+            "title": "Ver Coyote vs Acme (2026) Online"
+          }
+        ]
+      }
+    ]
+  },
+  "page2": {
+    "requested": "https://www.peelink2.com/inicio/page/2",
+    "final": "https://www.peelink2.com/inicio/page/2",
+    "status": 200,
+    "error": null,
+    "card_count": 48,
+    "headings": [
+      {
+        "tag": "h2",
+        "class": "",
+        "text": "Opciones rápidas"
+      },
+      {
+        "tag": "h2",
+        "class": "title",
+        "text": "BUSCAR PELIS EN PEELINK"
+      },
+      {
+        "tag": "h3",
+        "class": "",
+        "text": "Pelis Recomendadas"
+      },
+      {
+        "tag": "h2",
+        "class": "title",
+        "text": "TEMATICAS (TODO ESTRENOS)"
+      },
+      {
+        "tag": "h2",
+        "class": "title",
+        "text": "ULTIMAS PELICULAS"
+      }
+    ],
+    "pagination": [
+      {
+        "href": "https://www.peelink2.com/inicio/page/3",
+        "class": "page-numbers",
+        "rel": ""
+      },
+      {
+        "href": "https://www.peelink2.com/inicio/page/4",
+        "class": "page-numbers",
+        "rel": ""
+      },
+      {
+        "href": "https://www.peelink2.com/inicio/page/5",
+        "class": "page-numbers",
+        "rel": ""
+      },
+      {
+        "href": "https://www.peelink2.com/inicio/page/6",
+        "class": "page-numbers",
+        "rel": ""
+      },
+      {
+        "href": "https://www.peelink2.com/inicio/page/7",
+        "class": "page-numbers",
+        "rel": ""
+      },
+      {
+        "href": "https://www.peelink2.com/inicio/page/286",
+        "class": "page-numbers",
+        "rel": ""
+      },
+      {
+        "href": "https://www.peelink2.com/inicio/page/3",
+        "class": "",
+        "rel": ""
+      }
+    ],
+    "groups": [
+      {
+        "container": "div.widget-content# > div.slider#",
+        "sample_count": 8,
+        "examples": [
+          {
+            "url": "https://www.peelink2.com/2026/10/todo-dragon-ball-super-beerus.html",
+            "title": ""
+          },
+          {
+            "url": "https://www.peelink2.com/2026/05/ver-el-diablo-viste-a-la-moda-2-2026-online.html",
+            "title": ""
+          },
+          {
+            "url": "https://www.peelink2.com/2026/07/ver-spider-man-un-nuevo-dia-2026-online.html",
+            "title": ""
+          }
+        ]
+      },
+      {
+        "container": "div.contenedorh destacadas# > div.bloque#",
+        "sample_count": 15,
+        "examples": [
+          {
+            "url": "https://www.peelink2.com/2026/10/ver-the-storm-2026-online.html",
+            "title": "Ver The Storm (2026) Online"
+          },
+          {
+            "url": "https://www.peelink2.com/2026/10/ver-street-fighter-2026-online.html",
+            "title": "Ver Street Fighter (2026) Online"
+          },
+          {
+            "url": "https://www.peelink2.com/2026/10/ver-el-heladero-dulce-sabor-a-muerte-2026-online.html",
+            "title": "Ver El Heladero: Dulce sabor a muerte (2026) Online"
+          }
+        ]
+      },
+      {
+        "container": "li.widget widget_text#text-19 > div.textwidget#",
+        "sample_count": 15,
+        "examples": [
+          {
+            "url": "https://www.peelink2.com/2026/10/ver-resident-evil-noche-cero-2026-100-online.html",
+            "title": "Ver Resident Evil Noche cero (2026) 100% Online"
+          },
+          {
+            "url": "https://www.peelink2.com/2026/06/ver-toy-story-5-2026-online.html",
+            "title": "Ver Toy Story 5 (2026) Online"
+          },
+          {
+            "url": "https://www.peelink2.com/2026/04/ver-proyecto-salvacion-project-hail-mary-2026-gratis.html",
+            "title": "Ver Proyecto Salvación : Project Hail Mary (2026) Gratis"
+          }
+        ]
+      },
+      {
+        "container": "a.# > div.sidebarright#",
+        "sample_count": 10,
+        "examples": [
+          {
+            "url": "https://www.peelink2.com/2026/07/ver-posesion-infernal-en-llamas-2026-online.html",
+            "title": ""
+          },
+          {
+            "url": "https://www.peelink2.com/2026/05/ver-mortal-kombat-ii-2026-online.html",
+            "title": ""
+          },
+          {
+            "url": "https://www.peelink2.com/2025/12/ver-five-nights-at-freddys-2-2025-online.html",
+            "title": ""
+          }
+        ]
+      }
+    ]
+  },
+  "mufasa": {
+    "requested": "https://www.peelink2.com/?s=mufasa",
+    "final": null,
+    "status": null,
+    "error": "HTTP Error 406: Not Acceptable",
+    "card_count": null,
+    "headings": null,
+    "pagination": null,
+    "groups": []
+  },
+  "absent": {
+    "requested": "https://www.peelink2.com/?s=zzzxqvnonexistent987654",
+    "final": null,
+    "status": null,
+    "error": "HTTP Error 406: Not Acceptable",
+    "card_count": null,
+    "headings": null,
+    "pagination": null,
+    "groups": []
+  }
+}
