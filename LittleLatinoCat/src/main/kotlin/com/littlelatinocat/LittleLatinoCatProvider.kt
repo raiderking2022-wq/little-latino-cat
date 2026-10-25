@@ -6,6 +6,7 @@ import com.lagradost.cloudstream3.utils.*
 import org.jsoup.nodes.Document
 import java.net.URI
 import java.net.URLEncoder
+import java.text.Normalizer
 
 class LittleLatinoCatProvider : MainAPI() {
     override var mainUrl = "https://www.peelink2.com"
@@ -15,33 +16,72 @@ class LittleLatinoCatProvider : MainAPI() {
     override val supportedTypes = setOf(TvType.Movie)
     override val mainPage = mainPageOf("/inicio" to "Películas")
 
-    private fun cards(doc: Document): List<SearchResponse> {
-        return doc.select("a[href]:has(img)").mapNotNull { anchor ->
+    private fun local(url: String): Boolean = runCatching {
+        URI(url).host?.removePrefix("www.") == URI(mainUrl).host?.removePrefix("www.")
+    }.getOrDefault(false)
+
+    private fun normalized(text: String): String = Normalizer.normalize(text.lowercase(), Normalizer.Form.NFD)
+        .replace(Regex("\\p{M}+"), "").replace(Regex("[^a-z0-9]+"), " ").trim()
+
+    private fun cards(doc: Document): List<SearchResponse> =
+        doc.select(".contenedorh .bloque").mapNotNull { block ->
+            val anchor = block.selectFirst("a[href]:has(img)") ?: return@mapNotNull null
             val url = anchor.absUrl("href")
-            val parsed = runCatching { URI(url) }.getOrNull() ?: return@mapNotNull null
-            if (parsed.host?.removePrefix("www.") != "peelink2.com") return@mapNotNull null
-            if (!Regex("/\\d{4}/\\d{2}/").containsMatchIn(parsed.path ?: "")) return@mapNotNull null
-            val image = anchor.selectFirst("img") ?: return@mapNotNull null
+            if (!local(url) || !Regex("/[0-9]{4}/[0-9]{2}/").containsMatchIn(url)) return@mapNotNull null
+            val image = anchor.select("img").firstOrNull { !it.attr("src").contains("ver-pelicula.png") } ?: return@mapNotNull null
             val title = image.attr("alt").ifBlank { image.attr("title") }
-                .ifBlank { anchor.attr("title") }.ifBlank { anchor.text() }.trim()
+                .ifBlank { anchor.attr("title") }.ifBlank { block.text() }.trim()
             if (title.isBlank()) return@mapNotNull null
-            val poster = image.absUrl("data-src").ifBlank { image.absUrl("src") }
-            newMovieSearchResponse(title, url, TvType.Movie) { posterUrl = poster }
+            newMovieSearchResponse(title, url, TvType.Movie) {
+                posterUrl = image.absUrl("data-src").ifBlank { image.absUrl("src") }
+            }
         }.distinctBy { it.url }
-    }
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val url = mainUrl + request.data + if (page > 1) "/page/$page" else ""
-        val doc = app.get(url).document
-        val items = cards(doc)
-        val next = doc.selectFirst("a.next, a[rel=next]") != null ||
-            doc.select("a[href]").any { it.absUrl("href").contains("/page/${page + 1}") }
-        return newHomePageResponse(listOf(HomePageList(request.name, items)), next)
+        val path = request.data.trimEnd('/')
+        val doc = app.get(mainUrl + path + if (page > 1) "/page/$page" else "").document
+        val nextPath = "$path/page/${page + 1}"
+        val next = doc.select("a[href]").any {
+            val url = it.absUrl("href")
+            local(url) && runCatching { URI(url).path.trimEnd('/') == nextPath }.getOrDefault(false)
+        }
+        return newHomePageResponse(listOf(HomePageList(request.name, cards(doc))), next)
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val encoded = URLEncoder.encode(query.trim(), "UTF-8")
-        return cards(app.get("$mainUrl/?s=$encoded").document)
+        val term = query.trim()
+        if (term.isBlank()) return emptyList()
+        val tokens = normalized(term).split(' ').filter { it.isNotBlank() }
+        if (tokens.isEmpty()) return emptyList()
+        val home = app.get("$mainUrl/inicio").document
+        val forms = home.select("form").mapNotNull { form ->
+            val input = form.selectFirst("input[name=s], input[name=q], input[name=search]") ?: return@mapNotNull null
+            val action = form.absUrl("action").ifBlank { "$mainUrl/" }
+            if (!local(action)) return@mapNotNull null
+            val params = form.select("input[type=hidden][name]").associate { it.attr("name") to it.attr("value") }.toMutableMap()
+            params[input.attr("name")] = term
+            Triple(action, form.attr("method").lowercase(), params.toMap())
+        }.distinct().toMutableList()
+        if (forms.isEmpty()) forms.add(Triple("$mainUrl/", "get", mapOf("s" to term)))
+        var received = false
+        for ((action, method, params) in forms.take(3)) {
+            try {
+                val response = if (method == "post") app.post(action, data = params) else {
+                    val encoded = params.entries.joinToString("&") { URLEncoder.encode(it.key, "UTF-8") + "=" + URLEncoder.encode(it.value, "UTF-8") }
+                    app.get(action + if (action.contains('?')) "&$encoded" else "?$encoded")
+                }
+                if (response.code !in 200..299) continue
+                received = true
+                val matches = cards(response.document).filter { item ->
+                    val title = normalized(item.name)
+                    tokens.all { title.contains(it) }
+                }
+                if (matches.isNotEmpty()) return matches
+            } catch (error: kotlinx.coroutines.CancellationException) { throw error }
+            catch (_: Exception) { }
+        }
+        if (!received) throw ErrorLoadingException("El sitio rechazó la búsqueda. No se mostrarán recomendaciones como resultados.")
+        return emptyList()
     }
 
     override suspend fun load(url: String): LoadResponse {
@@ -95,15 +135,9 @@ class LittleLatinoCatProvider : MainAPI() {
         var found = false
         for (url in candidates.take(12)) {
             try {
-                loadExtractor(url, data, subtitleCallback) { link ->
-                    found = true
-                    callback(link)
-                }
-            } catch (error: kotlinx.coroutines.CancellationException) {
-                throw error
-            } catch (_: Exception) {
-                // Continue with the remaining independent players.
-            }
+                loadExtractor(url, data, subtitleCallback) { link -> found = true; callback(link) }
+            } catch (error: kotlinx.coroutines.CancellationException) { throw error }
+            catch (_: Exception) { }
         }
         return found
     }
