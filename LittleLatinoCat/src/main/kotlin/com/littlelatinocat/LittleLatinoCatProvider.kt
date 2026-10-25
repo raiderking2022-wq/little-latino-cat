@@ -1,5 +1,6 @@
 package com.littlelatinocat
 
+import android.util.Base64
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 import org.jsoup.nodes.Document
@@ -12,7 +13,6 @@ class LittleLatinoCatProvider : MainAPI() {
     override var lang = "es"
     override val hasMainPage = true
     override val supportedTypes = setOf(TvType.Movie)
-
     override val mainPage = mainPageOf("/inicio" to "Películas")
 
     private fun cards(doc: Document): List<SearchResponse> {
@@ -54,33 +54,55 @@ class LittleLatinoCatProvider : MainAPI() {
         }
     }
 
-    override suspend fun loadLinks(
-        data: String,
-        isCasting: Boolean,
-        subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit
-    ): Boolean {
+    private fun supportedPlayer(url: String): Boolean {
+        val uri = runCatching { URI(url) }.getOrNull() ?: return false
+        if (uri.scheme != "https") return false
+        val host = uri.host?.lowercase() ?: return false
+        return listOf("voe.sx", "filemoon.sx", "filemoon.to", "streamtape.com", "doodstream.com", "dood.to", "streamwish.to", "vidhide.com", "mixdrop.co", "mixdrop.to")
+            .any { host == it || host.endsWith(".$it") }
+    }
+
+    private fun unwrap(url: String): String? {
+        if (supportedPlayer(url)) return url
+        val uri = runCatching { URI(url) }.getOrNull() ?: return null
+        if (uri.host?.removePrefix("www.") != "peliculasrey.me") return null
+        val path = uri.path ?: return null
+        if (!path.startsWith("/red2.php/")) return null
+        var value = path.removePrefix("/red2.php/")
+        if (value.length !in 8..4096) return null
+        repeat(2) {
+            value = runCatching { String(Base64.decode(value, Base64.DEFAULT), Charsets.UTF_8) }.getOrNull() ?: return null
+        }
+        return value.takeIf { supportedPlayer(it) }
+    }
+
+    override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
         val doc = app.get(data).document
-        val content = doc.selectFirst(".entry-content, .post-body, article") ?: return false
-        val candidates = content.select("iframe[src], iframe[data-src], a[href]").mapNotNull { element ->
+        val candidates = linkedSetOf<String>()
+        doc.select("iframe[src], iframe[data-src], a[href]").forEach { element ->
             val url = when {
                 element.hasAttr("data-src") -> element.absUrl("data-src")
                 element.tagName() == "iframe" -> element.absUrl("src")
                 else -> element.absUrl("href")
             }
-            val host = runCatching { URI(url).host?.lowercase() }.getOrNull() ?: return@mapNotNull null
-            if (!url.startsWith("https://")) return@mapNotNull null
-            if (host.removePrefix("www.") == "peelink2.com") return@mapNotNull null
-            val videoHost = listOf("voe.sx", "filemoon.sx", "filemoon.to", "streamtape.com", "doodstream.com", "dood.to", "streamwish.to", "vidhide.com", "mixdrop.co", "mixdrop.to")
-                .any { host == it || host.endsWith(".$it") }
-            if (!videoHost) return@mapNotNull null
-            url
-        }.distinct().take(12)
+            unwrap(url)?.let { candidates.add(it) }
+        }
+        val wrapper = Regex("https://(?:www[.])?peliculasrey[.]me/red2[.]php/([A-Za-z0-9+/=]+)")
+        doc.select("script").forEach { script ->
+            val text = script.data().replace("\\/", "/")
+            wrapper.findAll(text).forEach { match -> unwrap(match.value)?.let { candidates.add(it) } }
+        }
         var found = false
-        for (url in candidates) {
-            loadExtractor(url, data, subtitleCallback) { link ->
-                found = true
-                callback(link)
+        for (url in candidates.take(12)) {
+            try {
+                loadExtractor(url, data, subtitleCallback) { link ->
+                    found = true
+                    callback(link)
+                }
+            } catch (error: kotlinx.coroutines.CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                // Continue with the remaining independent players.
             }
         }
         return found

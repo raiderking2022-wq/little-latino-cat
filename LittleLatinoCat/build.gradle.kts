@@ -1,6 +1,6 @@
-version = 1
+version = 2
 cloudstream {
-    description = "Little latino cat: proveedor experimental de Peelink2. Películas; reproducción pendiente de validación."
+    description = "Little latino cat: proveedor experimental de Peelink2. Resolución VOE; reproducción pendiente de validación en Android."
     authors = listOf("raiderking2022-wq")
     language = "es"
     status = 3
