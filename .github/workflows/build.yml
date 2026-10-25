@@ -7,9 +7,13 @@ on:
       - 'LittleLatinoCat/**'
       - '*.gradle.kts'
       - 'gradle.properties'
+      - 'repo.json'
       - '.github/workflows/build.yml'
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: little-latino-cat-publish
+  cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,9 +31,45 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - run: gradle :LittleLatinoCat:make --stacktrace
+      - run: gradle :LittleLatinoCat:make makePluginsJson --stacktrace
+      - name: Prepare and validate distribution
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, shutil
+          root = pathlib.Path('.')
+          out = root / 'distribution'
+          out.mkdir(exist_ok=True)
+          packages = list(root.glob('LittleLatinoCat/build/**/*.cs3'))
+          if len(packages) != 1:
+              raise RuntimeError(f'Expected one cs3, found {len(packages)}')
+          package = packages[0]
+          shutil.copy2(package, out / 'LittleLatinoCat.cs3')
+          lists = [p for p in root.rglob('plugins.json') if 'build' in p.parts and '.gradle' not in p.parts]
+          entries = []
+          for path in lists:
+              data = json.loads(path.read_text())
+              if isinstance(data, list):
+                  entries.extend(x for x in data if x.get('internalName') == 'LittleLatinoCat')
+          if not entries:
+              raise RuntimeError('Generated metadata for LittleLatinoCat not found')
+          entry = entries[0]
+          entry['name'] = 'Little latino cat'
+          entry['url'] = 'https://raw.githubusercontent.com/raiderking2022-wq/little-latino-cat/builds/LittleLatinoCat.cs3'
+          entry['fileSize'] = package.stat().st_size
+          (out / 'plugins.json').write_text(json.dumps([entry], ensure_ascii=False, indent=2))
+          shutil.copy2('repo.json', out / 'repo.json')
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: little-latino-cat-experimental
-          path: '**/*.cs3'
+          path: distribution/*
           if-no-files-found: error
+      - name: Publish only this repository's builds branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: builds
+          publish_dir: ./distribution
+          force_orphan: false
+          enable_jekyll: true
