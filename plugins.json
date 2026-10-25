@@ -1,9 +1,9 @@
 [
   {
-    "fileHash": "sha256-b526acc273f7ceab0b7bd4ec603bdb7544fb7e8ee7be55fd1710b61bc298ac07",
+    "fileHash": "sha256-b0a4d55b096e4c2ad0ebecd21f7e50a4daef55c5ea1568e5708bc5102c8c825c",
     "apiVersion": 1,
     "repositoryUrl": "https://github.com/raiderking2022-wq/little-latino-cat",
-    "fileSize": 13125,
+    "fileSize": 18641,
     "status": 3,
     "language": "es",
     "authors": [
@@ -12,9 +12,9 @@
     "tvTypes": [
       "Movie"
     ],
-    "version": 2,
+    "version": 3,
     "internalName": "LittleLatinoCat",
-    "description": "Little latino cat: proveedor experimental de Peelink2. Resolución VOE; reproducción pendiente de validación en Android.",
+    "description": "Little latino cat: catálogo principal y búsqueda con verificación de títulos.",
     "url": "https://raw.githubusercontent.com/raiderking2022-wq/little-latino-cat/builds/LittleLatinoCat.cs3",
     "name": "Little latino cat"
   }
