@@ -6,3 +6,6 @@ cloudstream {
     status = 3
     tvTypes = listOf("Movie")
 }
+dependencies {
+    add("compileOnly", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+}
