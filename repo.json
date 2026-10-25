@@ -1,0 +1,8 @@
+{
+  "name": "Little latino cat",
+  "description": "Plugin independiente y experimental de películas. Reproducción pendiente de validar.",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/raiderking2022-wq/little-latino-cat/builds/plugins.json"
+  ]
+}
