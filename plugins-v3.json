@@ -1,0 +1,17 @@
+[
+  {
+    "fileHash": "sha256-b0a4d55b096e4c2ad0ebecd21f7e50a4daef55c5ea1568e5708bc5102c8c825c",
+    "apiVersion": 1,
+    "repositoryUrl": "https://github.com/raiderking2022-wq/little-latino-cat",
+    "fileSize": 18641,
+    "status": 3,
+    "language": "es",
+    "authors": ["raiderking2022-wq"],
+    "tvTypes": ["Movie"],
+    "version": 3,
+    "internalName": "LittleLatinoCat",
+    "description": "Versión 3 fija: catálogo principal y búsqueda con verificación de títulos. Error 406 pendiente.",
+    "url": "https://raw.githubusercontent.com/raiderking2022-wq/little-latino-cat/790b66e8e3ea3b630035488d08dbdaf174a907ae/LittleLatinoCat.cs3",
+    "name": "Little latino cat"
+  }
+]

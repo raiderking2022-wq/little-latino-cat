@@ -1,0 +1,6 @@
+{
+  "name": "Little latino cat - v3 verificada",
+  "description": "Instalación fija de la versión 3. No recibe futuras versiones automáticamente. Error 406 pendiente de corregir.",
+  "manifestVersion": 1,
+  "pluginLists": ["https://raw.githubusercontent.com/raiderking2022-wq/little-latino-cat/main/plugins-v3.json"]
+}
