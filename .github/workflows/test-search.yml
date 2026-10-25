@@ -1,0 +1,68 @@
+name: Test search HTTP 406
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/test-search.yml']
+permissions:
+  contents: write
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p search-report
+          python3 - <<'PY'
+          import json, pathlib, urllib.request, urllib.parse, urllib.error, http.cookiejar, re
+          from html.parser import HTMLParser
+          base='https://www.peelink2.com'
+          headers={'User-Agent':'Mozilla/5.0','Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8','Accept-Language':'es,en;q=0.8','Referer':base+'/inicio'}
+          client=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+          class Forms(HTMLParser):
+              def __init__(self): super().__init__(); self.forms=[]; self.current=None; self.images=[]
+              def handle_starttag(self,tag,attrs):
+                  a=dict(attrs)
+                  if tag=='form': self.current={'action':a.get('action',''),'method':a.get('method','get'),'inputs':[]}
+                  if tag=='input' and self.current is not None: self.current['inputs'].append(a)
+                  if tag=='img' and a.get('alt'): self.images.append(a['alt'][:160])
+              def handle_endtag(self,tag):
+                  if tag=='form' and self.current is not None: self.forms.append(self.current); self.current=None
+          def fetch(url,method='get',params=None,rich=True):
+              data=urllib.parse.urlencode(params or {}).encode() if method=='post' else None
+              if params and method!='post': url+=('&' if '?' in url else '?')+urllib.parse.urlencode(params)
+              request=urllib.request.Request(url,data=data,headers=headers if rich else {'User-Agent':'Mozilla/5.0'})
+              try:
+                  response=client.open(request,timeout=20)
+              except urllib.error.HTTPError as error: response=error
+              with response:
+                  text=response.read(2000000).decode('utf-8','replace'); parser=Forms(); parser.feed(text)
+                  title=re.search(r'<title[^>]*>(.*?)</title>',text,re.S|re.I)
+                  return {'url':response.url,'status':response.code,'type':response.headers.get('Content-Type'),'title':title.group(1)[:250] if title else '', 'forms':parser.forms,'image_titles':parser.images[:25],'body_excerpt':re.sub('<[^>]+>',' ',text)[:500]}
+          report={}
+          try:
+              home=fetch(base+'/inicio'); report['home_forms']=home['forms']
+              cases=[(base+'/', 'get', {'s':'mufasa'})]
+              for form in home['forms']:
+                  fields=[i for i in form['inputs'] if i.get('name') in ['s','q','search']]
+                  action=urllib.parse.urljoin(base+'/inicio',form['action'])
+                  if not fields or urllib.parse.urlparse(action).hostname not in ['peelink2.com','www.peelink2.com']: continue
+                  params={i['name']:i.get('value','') for i in form['inputs'] if i.get('type')=='hidden' and i.get('name')}
+                  params[fields[0]['name']]='mufasa'
+                  case=(action,form['method'].lower(),params)
+                  if case not in cases: cases.append(case)
+              report['tests']=[]
+              for action,method,params in cases[:3]:
+                  for rich in [False,True]:
+                      try: result=fetch(action,method,params,rich); result['browser_headers']=rich
+                      except Exception as error: result={'error':str(error)[:300]}
+                      report['tests'].append(result)
+          except Exception as error: report['error']=str(error)[:300]
+          pathlib.Path('search-report/search.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          PY
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: search-diagnostics
+          publish_dir: ./search-report
+          enable_jekyll: true
