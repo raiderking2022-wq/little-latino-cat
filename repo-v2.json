@@ -1,0 +1,6 @@
+{
+  "name": "Little latino cat - prueba v2",
+  "description": "Ruta de diagnóstico fijada a la versión 2. No recibe futuras versiones automáticamente.",
+  "manifestVersion": 1,
+  "pluginLists": ["https://raw.githubusercontent.com/raiderking2022-wq/little-latino-cat/main/plugins-v2.json"]
+}

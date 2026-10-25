@@ -1,0 +1,17 @@
+[
+  {
+    "fileHash": "sha256-b526acc273f7ceab0b7bd4ec603bdb7544fb7e8ee7be55fd1710b61bc298ac07",
+    "apiVersion": 1,
+    "repositoryUrl": "https://github.com/raiderking2022-wq/little-latino-cat",
+    "fileSize": 13125,
+    "status": 3,
+    "language": "es",
+    "authors": ["raiderking2022-wq"],
+    "tvTypes": ["Movie"],
+    "version": 2,
+    "internalName": "LittleLatinoCat",
+    "description": "Ruta fija de prueba v2. Reproducción pendiente de validar.",
+    "url": "https://raw.githubusercontent.com/raiderking2022-wq/little-latino-cat/ca366ed242bf9b6aeae59a5a5dd16753d7223709/LittleLatinoCat.cs3",
+    "name": "Little latino cat"
+  }
+]
