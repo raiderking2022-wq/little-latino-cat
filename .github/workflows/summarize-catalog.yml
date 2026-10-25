@@ -1,0 +1,36 @@
+name: Summarize catalog diagnostic
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/summarize-catalog.yml']
+permissions:
+  contents: write
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: catalog-diagnostics
+      - run: |
+          mkdir -p summary
+          python3 - <<'PY'
+          import json, pathlib, collections
+          reports=json.loads(pathlib.Path('catalog.json').read_text())
+          result={}
+          for name,data in reports.items():
+              groups=collections.defaultdict(list)
+              for card in data.get('cards',[]):
+                  key=' > '.join(p['tag']+'.'+p['class']+'#'+p['id'] for p in card['parents'][-2:])
+                  groups[key].append({'url':card['href'],'title':card['images'][0].get('alt','') or card['text']})
+              result[name]={k:data.get(k) for k in ['requested','final','status','error','card_count','headings','pagination']}
+              result[name]['groups']=[{'container':key,'sample_count':len(cards),'examples':cards[:3]} for key,cards in groups.items()]
+          pathlib.Path('summary/summary.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+          PY
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: catalog-summary
+          publish_dir: ./summary
+          enable_jekyll: true
