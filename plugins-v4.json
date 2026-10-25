@@ -1,0 +1,17 @@
+[
+  {
+    "fileHash": "sha256-4e2c2711182ce21dbd0e25bcb202f2ea6e21a61a0c49b858654908366cd3f0f9",
+    "apiVersion": 1,
+    "repositoryUrl": "https://github.com/raiderking2022-wq/little-latino-cat",
+    "fileSize": 16462,
+    "status": 3,
+    "language": "es",
+    "authors": ["raiderking2022-wq"],
+    "tvTypes": ["Movie"],
+    "version": 4,
+    "internalName": "LittleLatinoCat",
+    "description": "Versión 4 fija: lector de búsqueda separado del catálogo. Pendiente de validación Android.",
+    "url": "https://raw.githubusercontent.com/raiderking2022-wq/little-latino-cat/9eeaacc28b971b5adec0db0a33017ff07fbd30ab/LittleLatinoCat.cs3",
+    "name": "Little latino cat"
+  }
+]

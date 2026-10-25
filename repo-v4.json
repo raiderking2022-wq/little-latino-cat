@@ -1,0 +1,6 @@
+{
+  "name": "Little latino cat - v4",
+  "description": "Instalación fija de v4. Búsqueda con lector separado; pendiente de validación Android. No recibe futuras versiones automáticamente.",
+  "manifestVersion": 1,
+  "pluginLists": ["https://raw.githubusercontent.com/raiderking2022-wq/little-latino-cat/main/plugins-v4.json"]
+}
